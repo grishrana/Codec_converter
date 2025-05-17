@@ -34,11 +34,24 @@ function convert {
 }
 
 if [ -d "$1" ]; then
+
+  # creating multiple threads for batch processing
+  PIDS=() # stores pid of background proccess
+
   cd "$(pwd)/${1}"
   mkdir -p changed/
   for f in *.mp4; do
-    convert $f
+
+    convert "$f" &
+    PIDS+=($!)
   done
+
+  for pid in "${PIDS[@]}"; do
+    # wait for all threads to finish
+    wait $pid
+    echo "${pid} completed"
+  done
+
 elif [ -f "$1" ]; then
   mkdir -p changed/
   convert $1

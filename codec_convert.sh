@@ -29,7 +29,7 @@ function convert {
     /frame|fps|bitrate|speed|progress/ {
       stats[$1] = $2
       if ($1 == "progress"){
-        `printf "\r[ %s ]frame: %s fps: %s bitrate: %s speed: %s", $0, stats["frame"], stats["fps"], stats["bitrate"], stats["speed"]
+        printf "\r[ %s ]frame: %s fps: %s bitrate: %s speed: %s", $0, stats["frame"], stats["fps"], stats["bitrate"], stats["speed"]
         fflush()
       }
     }'
@@ -76,20 +76,22 @@ function convert {
 if [ -d "$1" ]; then
 
   # creating multiple threads for batch processing
-  PIDS=() # stores pid of background proccess
+  valid_ext=("mp4" "mov" "MOV")
 
   cd "$(pwd)/${1}"
   mkdir -p changed/
-  for f in *.mp4; do
-
-    convert "$f" &
-    PIDS+=($!)
-  done
-
-  for pid in "${PIDS[@]}"; do
-    # wait for all threads to finish
-    wait $pid
-    echo "${pid} completed"
+  for f in *; do
+    if [ -f "$f" ]; then
+      # Remove longest prefix ending with a . (i.e filename)
+      ext="${f##*.}"
+      if [[ " ${valid_ext[*]} " =~ "$ext" ]]; then
+        echo "---------------"
+        echo "$f is valid file."
+        echo "---------------"
+        echo ""
+        convert $f
+      fi
+    fi
   done
 
 elif [ -f "$1" ]; then

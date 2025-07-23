@@ -22,8 +22,10 @@ function convert {
   resolution=$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=p=0 "$1") # returns resolution(width, height) of a file
   IFS="," read -r width hieght <<<"$resolution"
 
-  if [ "$width" -eq 1080 ] || [ "$width" -eq 3840 ]; then
+  if [ "$width" -eq "1080" ] || [ "$width" -eq "2160" ]; then
     # convert the codec with protrait scale
+    echo "Width: $width Height: $hieght"
+    echo "Converting to 1080:1920"
     # using gwak to format the output from ffmpeg
     ffmpeg -hide_banner -loglevel 0 -nostats -i "${1}" -vf "scale=1080:1920, fps=60" -c:v prores_ks -profile:v 3 -pix_fmt yuv422p10le -c:a pcm_s16le -progress pipe:1 -y "${new_file}" | gawk -F "=" '
     /frame|fps|bitrate|speed|progress/ {
@@ -49,6 +51,8 @@ function convert {
     # convert the codec with landscape scale
     # ffmpeg -hide_banner -loglevel 0 -i "${1}" -vf "scale=1920:1080, fps=60" -c:v prores_ks -profile:v 3 -pix_fmt yuv422p10le -c:a pcm_s16le -progress pipe:1 -y "${new_file}" | gawk -v label="Video1" -f progress_parser.awk
     # using gwak to format the output from ffmpeg
+    echo "Width: $width Height: $hieght"
+    echo "Converting to 1920:1080"
     ffmpeg -hide_banner -loglevel 0 -i "${1}" -vf "scale=1920:1080, fps=60" -c:v prores_ks -profile:v 3 -pix_fmt yuv422p10le -c:a pcm_s16le -progress pipe:1 -y "${new_file}" | gawk -F "=" '
     /frame|fps|bitrate|speed|progress/ {
       stats[$1] = $2

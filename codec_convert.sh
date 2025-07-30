@@ -20,7 +20,7 @@ function convert {
   # `read` command takes input and splits it into variables. By default, it splits the input based on spaces or newlines.
   # IFS="," sets Internal Field Separator to a comma(,) which tell shell how to split the strings into separate variables when using commands like read
   resolution=$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=p=0 "$1") # returns resolution(width, height) of a file
-  IFS="," read -r width hieght <<<"$resolution"
+  IFS="," read -r hieght widhth <<<"$resolution"
 
   if [ "$width" -eq "1080" ] || [ "$width" -eq "2160" ]; then
     # convert the codec with protrait scale
